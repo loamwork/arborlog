@@ -69,8 +69,13 @@ module.exports = [
     primary: 'pdx-street',
 },
 {
+    // Verified 2026-04-13: stevage's URL still works. NYC TreesCount! 2015 census
+    // is still the canonical bulk dataset (the 2025 census is in fieldwork but not
+    // yet published). rowsUpdatedAt = 2017-10-04 (post-census QA fixes).
     id: 'nyc',
     download: 'https://data.cityofnewyork.us/api/views/uvpi-gqnh/rows.csv?accessType=DOWNLOAD',
+    info: 'https://data.cityofnewyork.us/Environment/2015-Street-Tree-Census-Tree-Data/uvpi-gqnh',
+    sourceMetadataUrl: 'https://data.cityofnewyork.us/api/views/uvpi-gqnh.json',
     format: 'csv',
     filename: 'nyc.vrt',
     short: 'New York',
@@ -78,7 +83,7 @@ module.exports = [
     country: 'USA',
     crosswalk: {
         ref: 'tree_id',
-        dbh: x => x.tree_dbh * 2.54,
+        dbh: x => x.tree_dbh * 2.54, // source is in inches
         scientific: 'spc_latin',
         common: 'spc_common',
         health: 'health',
@@ -160,24 +165,27 @@ module.exports = [
 
 // },
 {
+    // Updated 2026-04-13: stevage's 337t-q2b4 dataset returned 404. The correct
+    // active dataset is tkzw-k3nq ("Street Tree List", ~198K records, live updates).
     id: 'san_francisco',
-    // download: 'https://data.sfgov.org/api/geospatial/tkzw-k3nq?method=export&format=GeoJSON',
-    download: 'https://data.sfgov.org/api/views/337t-q2b4/rows.csv?accessType=DOWNLOAD',
+    download: 'https://data.sfgov.org/api/views/tkzw-k3nq/rows.csv?accessType=DOWNLOAD',
+    info: 'https://data.sfgov.org/City-Infrastructure/Street-Tree-List/tkzw-k3nq',
     format:'csv',
     short: 'San Francisco',
     long: 'City of San Francisco',
     country: 'USA',
+    sourceMetadataUrl: 'https://data.sfgov.org/api/views/tkzw-k3nq.json',
     crosswalk: {
         id: 'TreeID',
         scientific: x => String(x.qSpecies).split(' :: ')[0],
         common:  x => String(x.qSpecies).split(' :: ')[1],
         description: 'qSiteInfo',
-        dbh: x => Number(x.DBH) * 2.54, // assuming
+        dbh: x => Number(x.DBH) * 2.54, // SF DBH is in inches
         planted: 'PlantDate',
 
 
         // also qLegalStatus (private/DPW), qCaretaker, PlantType
-    }, 
+    },
     centre: [-122.435, 37.77],
 
 }, 
@@ -372,25 +380,37 @@ module.exports = [
     }
 },
 {
+    // Updated 2026-04-13: stevage's old opendata.arcgis.com zip URL is dead. The
+    // dataset migrated to a hosted FeatureServer ("SDOT_Trees_(Active)" — ~209K
+    // records, live updates). Stevage's original crosswalk used 10-char field name
+    // truncations from the old shapefile distribution; the FeatureServer exposes
+    // the full names, which we use here.
     id:'seattle',
     country: 'USA',
     short: 'Seattle',
-    long: '',
-    download: 'https://opendata.arcgis.com/datasets/0b8c124ace214943ab0379623937eccb_6.zip',
-    info:'http://hub.arcgis.com/datasets/SeattleCityGIS::trees',
-    format: 'zip',
+    long: 'Seattle Department of Transportation',
+    download: 'https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/SDOT_Trees_(Active)/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://data-seattlecitygis.opendata.arcgis.com/datasets/SeattleCityGIS::sdot-trees-active',
+    sourceMetadataUrl: 'https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/SDOT_Trees_(Active)/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    paginate: true,
     crosswalk: {
         ref: 'UNITID',
         health: 'CONDITION',
         owner: 'OWNERSHIP',
-        updated: 'LAST_VERIF',
-        planted: 'PLANTED_DA',
-        scientific: 'SCIENTIFIC',
-        common: 'COMMON_NAM',
-        height: x => x.TREEHEIGHT / FEET,
-        dbh: x => x.DIAM * INCHES,
-        condition: x => ['Very poor', 'Poor','Fair','Good','Excellent'][x.CONDITIO_3 - 1],
-        // lots more https://www.seattle.gov/Documents/Departments/SDOT/GIS/Trees_OD.pdf
+        // ArcGIS REST returns dates as Unix epoch milliseconds. Convert to ISO
+        // for consistency with sourceLastUpdated.
+        updated: x => x.MODDATE ? new Date(x.MODDATE).toISOString() : null,           // was 'LAST_VERIF' in stevage's truncated names
+        planted: x => x.PLANTED_DATE ? new Date(x.PLANTED_DATE).toISOString() : null, // was 'PLANTED_DA'
+        scientific: 'SCIENTIFIC_NAME', // was 'SCIENTIFIC'
+        common: 'COMMON_NAME',         // was 'COMMON_NAM'
+        height: x => x.TREEHEIGHT ? x.TREEHEIGHT / FEET : null,  // source is in feet
+        dbh: x => x.DIAM ? x.DIAM * INCHES : null,               // source is in inches
+        // Stevage's original "condition" mapping referenced CONDITIO_3 (a numeric
+        // code from the truncated shapefile). The FeatureServer schema has both
+        // CONDITION (text) and CONDITION_RATING (text). 'CONDITION' is mapped to
+        // health above; this entry is left intentionally unmapped.
+        // Schema doc: https://www.seattle.gov/Documents/Departments/SDOT/GIS/Trees_OD.pdf
     }
 },
 {

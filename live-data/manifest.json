@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "sources": {
+    "nyc": {
+      "sourceId": "nyc",
+      "short": "New York",
+      "long": "New York City",
+      "country": "USA",
+      "format": "csv",
+      "download": "https://data.cityofnewyork.us/api/views/uvpi-gqnh/rows.csv?accessType=DOWNLOAD",
+      "info": "https://data.cityofnewyork.us/Environment/2015-Street-Tree-Census-Tree-Data/uvpi-gqnh",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2017-10-04T13:41:26.000Z",
+      "ingestedAt": "2026-04-13T23:33:35.768Z",
+      "recordCount": 683788,
+      "droppedNoGeo": 0,
+      "durationSec": 250,
+      "lastRunStatus": "ok"
+    },
+    "san_francisco": {
+      "sourceId": "san_francisco",
+      "short": "San Francisco",
+      "long": "City of San Francisco",
+      "country": "USA",
+      "format": "csv",
+      "download": "https://data.sfgov.org/api/views/tkzw-k3nq/rows.csv?accessType=DOWNLOAD",
+      "info": "https://data.sfgov.org/City-Infrastructure/Street-Tree-List/tkzw-k3nq",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2026-04-06T11:27:14.000Z",
+      "ingestedAt": "2026-04-13T23:43:27.737Z",
+      "recordCount": 195358,
+      "droppedNoGeo": 3072,
+      "durationSec": 14,
+      "lastRunStatus": "ok"
+    },
+    "seattle": {
+      "sourceId": "seattle",
+      "short": "Seattle",
+      "long": "Seattle Department of Transportation",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/SDOT_Trees_(Active)/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://data-seattlecitygis.opendata.arcgis.com/datasets/SeattleCityGIS::sdot-trees-active",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2026-04-13T12:06:52.021Z",
+      "ingestedAt": "2026-04-13T23:43:41.017Z",
+      "recordCount": 209057,
+      "droppedNoGeo": 0,
+      "durationSec": 75,
+      "lastRunStatus": "ok"
+    }
+  },
+  "lastRefreshedAt": "2026-04-13T23:44:56.192Z"
+}

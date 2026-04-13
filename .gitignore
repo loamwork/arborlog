@@ -11,3 +11,9 @@
 /APC-taxon-2020-02-20-5349.csv
 /global_tree_search_trees_1_3.csv
 /out/
+
+# live-refresh.js output: per-city normalized JSON files are large (NYC alone
+# is ~300MB) and regenerable. The manifest is the freshness audit trail and
+# IS committed.
+/live-data/*.json
+!/live-data/manifest.json
