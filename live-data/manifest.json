@@ -412,7 +412,23 @@
       "droppedNoGeo": 0,
       "durationSec": 7,
       "lastRunStatus": "ok"
+    },
+    "cambridge_uk": {
+      "sourceId": "cambridge_uk",
+      "short": "Cambridge UK",
+      "long": "Cambridge City Council, Cambridgeshire",
+      "country": "UK",
+      "format": "csv",
+      "download": "https://www.cambridge.gov.uk/media/vm1naaoi/tree-data-2024-11.csv",
+      "info": "https://www.cambridge.gov.uk/tree-data",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": null,
+      "ingestedAt": "2026-04-14T03:57:29.661Z",
+      "recordCount": 20989,
+      "droppedNoGeo": 0,
+      "durationSec": 1,
+      "lastRunStatus": "ok"
     }
   },
-  "lastRefreshedAt": "2026-04-14T03:48:28.117Z"
+  "lastRefreshedAt": "2026-04-14T03:57:30.802Z"
 }

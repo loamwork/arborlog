@@ -20,6 +20,33 @@ module.exports = [
         },
     },
     {
+        // Added 2026-04-13: Cambridge City Council tree inventory. Council-
+        // owned and managed trees on public open spaces (excludes private
+        // garden trees, woodlands, and trees in their first year). Direct CSV
+        // download from cambridge.gov.uk/tree-data — file is named
+        // "tree-data-2024-11.csv" reflecting a Nov 2024 snapshot. ~20,989
+        // records (the dataset page misstates "2,989"; actual count is ~7x).
+        // Schema is sparse: only tree_type, tree_code, species description,
+        // and coordinates (BNG + WGS84). No DBH, no condition, no plant date.
+        // License: CC BY-NC 4.0 (Cambridge City Council statement on the data
+        // page).
+        id: 'cambridge_uk',
+        country: 'UK',
+        download: 'https://www.cambridge.gov.uk/media/vm1naaoi/tree-data-2024-11.csv',
+        info: 'https://www.cambridge.gov.uk/tree-data',
+        format: 'csv',
+        short: 'Cambridge UK',
+        long: 'Cambridge City Council, Cambridgeshire',
+        crosswalk: {
+            // Tree_code is the council's per-tree identifier
+            ref: 'Tree_code',
+            scientific: 'Spec_desc', // species description, e.g. "Tilia tomentosa"
+            type: 'Tree_type',       // 2-char type code (TT, etc.)
+            // CSV has Longitude / Latitude columns directly — extractCsvLatLon
+            // picks these up via the standard candidate list.
+        },
+    },
+    {
         // Updated 2026-04-13: switched from stevage's 2018 GLA snapshot
         // (~715K trees) to the new "London Public Realm Trees" 2025 release
         // (~1.14 MILLION trees, published 2025-12-01 by GLA + GiGL). Sources:

@@ -147,10 +147,24 @@ const DEFAULT_SOURCE_IDS = [
     'san_jose_heritage',
     'london',
     'bristol',
+    'cambridge_uk',
     'edinburgh',
     'york',
     'york-private',
     'york_tpo',
+    // Pining priority UK cities surveyed but with no usable open data found:
+    //   Newcastle upon Tyne — TPO dataset on data.gov.uk has only a stub
+    //                         record (no actual file). ezyPortal is UI-only.
+    //   Oxford UK           — No public city tree inventory found. Oxford
+    //                         results on ArcGIS Hub are Oxford MS / Oxford
+    //                         County NJ.
+    //   Exeter UK           — Exeter City Council has TPO/conservation maps
+    //                         but no downloadable inventory.
+    //   St Andrews / Fife   — Tree Preservation Orders dataset exists on
+    //                         data.gov.uk but the Fife GeoServer endpoint
+    //                         (arcgisweb.fife.gov.uk) was unreachable as of
+    //                         2026-04-13. Worth retrying or contacting Fife
+    //                         Council directly.
 ];
 
 const ARCGIS_PAGE_SIZE = 2000;
