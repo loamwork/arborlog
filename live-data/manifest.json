@@ -444,7 +444,23 @@
       "droppedNoGeo": 16096,
       "durationSec": 8,
       "lastRunStatus": "ok"
+    },
+    "ithaca": {
+      "sourceId": "ithaca",
+      "short": "Ithaca",
+      "long": "City of Ithaca, New York",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services5.arcgis.com/R1JbITZvSQHJsl5r/arcgis/rest/services/City_Managed_Trees/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://www.cityofithacany.gov/253/Tree-Inventory-GIS",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2024-09-26T13:30:58.610Z",
+      "ingestedAt": "2026-04-14T04:21:28.761Z",
+      "recordCount": 13258,
+      "droppedNoGeo": 0,
+      "durationSec": 4,
+      "lastRunStatus": "ok"
     }
   },
-  "lastRefreshedAt": "2026-04-14T04:16:10.923Z"
+  "lastRefreshedAt": "2026-04-14T04:21:32.899Z"
 }

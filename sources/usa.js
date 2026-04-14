@@ -741,6 +741,48 @@ module.exports = [
     primary: 'austin',
 },
 {
+    // Added 2026-04-14: City of Ithaca tree inventory ("City Managed Trees")
+    // hosted on ArcGIS Online by cmorrissey_IthacaNY. ~13,258 trees managed
+    // on a 4-year inspection cycle, last edited 2024-09-26. Public access.
+    // Distinct from the existing 'cornell' source which only covers Cornell
+    // University's campus. The City Forester (Jeanne Grace) maintains this.
+    // Schema has separate common-name (SPP_com is UPPERCASE,
+    // SPName is sentence case) and botanical fields, DBH in inches,
+    // neighborhood area, plant date, cultivar, address, side, street.
+    id: 'ithaca',
+    download: 'https://services5.arcgis.com/R1JbITZvSQHJsl5r/arcgis/rest/services/City_Managed_Trees/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://www.cityofithacany.gov/253/Tree-Inventory-GIS',
+    sourceMetadataUrl: 'https://services5.arcgis.com/R1JbITZvSQHJsl5r/arcgis/rest/services/City_Managed_Trees/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Ithaca',
+    long: 'City of Ithaca, New York',
+    country: 'USA',
+    crosswalk: {
+        ref: 'OBJECTID',
+        scientific: 'SPP_bot',
+        common: 'SPName',         // sentence-case version of SPP_com
+        commonRaw: 'SPP_com',     // UPPERCASE original
+        cultivar: 'Cultivar',
+        // DBH source is inches; convert to cm
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        siteType: 'SiteType',
+        area: 'Area',             // neighborhood: FALL CREEK / NORTHSIDE / etc.
+        // Address combined from address number + side + street
+        address: x => {
+            const num = x.address;
+            const street = x.onstr;
+            const side = x.side;
+            if (!num && !street) return null;
+            const parts = [num, street, side ? `(${side})` : null].filter(Boolean);
+            return parts.join(' ').trim() || null;
+        },
+        side: 'side',
+        street: 'onstr',
+        planted: x => (x.PLDate && x.PLDate !== 'UNKNOWN') ? x.PLDate : null,
+    },
+    centre: [-76.4980, 42.4530],
+},
+{
     id:'cornell',
     country: 'USA',
     short: 'Cornell University',

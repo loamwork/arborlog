@@ -142,6 +142,7 @@ const DEFAULT_SOURCE_IDS = [
     'austin_downtown',
     'boston',
     'cambridge',
+    'ithaca',
     'mountain_view',
     'san_jose',
     'san_jose_heritage',
