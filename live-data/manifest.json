@@ -652,7 +652,71 @@
       "droppedNoGeo": 0,
       "durationSec": 6,
       "lastRunStatus": "ok"
+    },
+    "peekskill": {
+      "sourceId": "peekskill",
+      "short": "Peekskill",
+      "long": "City of Peekskill, New York",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services.arcgis.com/JkJtWZlydMmt6KMo/arcgis/rest/services/Peekskill_Eocene_Urban_Forestry_Data_08_27_25/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://www.cityofpeekskill.com/",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2026-04-09T21:20:37.588Z",
+      "ingestedAt": "2026-04-14T15:53:09.277Z",
+      "recordCount": 2373,
+      "droppedNoGeo": 0,
+      "durationSec": 3,
+      "lastRunStatus": "ok"
+    },
+    "bedford_ny": {
+      "sourceId": "bedford_ny",
+      "short": "Bedford",
+      "long": "Town of Bedford, New York",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services3.arcgis.com/CVgpFBT5IAstLcZC/arcgis/rest/services/BedfordTreeInventory/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://bedfordny.gov/",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2019-02-04T22:02:54.818Z",
+      "ingestedAt": "2026-04-14T15:51:05.096Z",
+      "recordCount": 4448,
+      "droppedNoGeo": 0,
+      "durationSec": 3,
+      "lastRunStatus": "ok"
+    },
+    "ossining": {
+      "sourceId": "ossining",
+      "short": "Ossining",
+      "long": "Village of Ossining, New York",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services.arcgis.com/VgmyyKiMPvUPgldo/arcgis/rest/services/Ossining_Street_Tree_Inventory_FINAL/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://www.villageofossining.org/",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2018-03-07T21:06:37.425Z",
+      "ingestedAt": "2026-04-14T15:51:07.617Z",
+      "recordCount": 664,
+      "droppedNoGeo": 0,
+      "durationSec": 1,
+      "lastRunStatus": "ok"
+    },
+    "dobbs_ferry": {
+      "sourceId": "dobbs_ferry",
+      "short": "Dobbs Ferry",
+      "long": "Village of Dobbs Ferry, New York (High Street parcel)",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services.arcgis.com/VgmyyKiMPvUPgldo/arcgis/rest/services/Dobbs_Ferry_High_Street_Parcel_FINAL/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://dobbsferry.com/",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2015-04-13T19:39:38.565Z",
+      "ingestedAt": "2026-04-14T15:51:08.665Z",
+      "recordCount": 65,
+      "droppedNoGeo": 0,
+      "durationSec": 1,
+      "lastRunStatus": "ok"
     }
   },
-  "lastRefreshedAt": "2026-04-14T15:36:16.176Z"
+  "lastRefreshedAt": "2026-04-14T15:53:11.688Z"
 }

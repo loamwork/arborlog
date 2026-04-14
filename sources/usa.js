@@ -1535,6 +1535,231 @@ module.exports = [
         updated: x => x.LASTUPDATE ? new Date(x.LASTUPDATE).toISOString() : null,
     },
 },
+// ----- Westchester County, NY (4 sources) -----
+// Westchester County GIS itself publishes no countywide tree layer. Below
+// are the four municipalities that expose open, DBH-bearing inventories as
+// of 2026-04-14. Gaps (Yonkers has 18k points with attributes hidden behind
+// a join; White Plains / New Rochelle / Mount Vernon GIS publish no tree
+// layers; most tree-rich villages like Scarsdale / Larchmont / Bronxville
+// / Tarrytown / Irvington / Hastings-on-Hudson have nothing public) are
+// documented in post_v1_council_emails.md entry #8.
+{
+    // City of Peekskill, NY — Eocene Environmental inventory, very recent
+    // data (last edited 2026-02-01). 2,850 trees across the city. Schema is
+    // well-structured: Species__2 is genus, Species__3 is epithet (we
+    // combine into scientific), Species__1 is family, SPECIES_CO / Species_In
+    // hold common names (same value in both columns). Trees_DBH is primary
+    // stem inches; DBH2..DBH6 are additional stems for multi-stem trees.
+    // HEIGHT is a binned string like "46-50" / "31-35" / "0-5" feet.
+    //
+    // Plus full ANSI A300 / TRAQ risk-assessment fields: OCCUPANCYR,
+    // IMPACTLIKE, FAILURELIK, LIKELIHOOD, CONSEQ, TRAQRISK, TREE_WORK_,
+    // MAINT_PRIO, RESIDRISK, INSPECT. Maintained by the Peekskill
+    // Planning Department.
+    id: 'peekskill',
+    download: 'https://services.arcgis.com/JkJtWZlydMmt6KMo/arcgis/rest/services/Peekskill_Eocene_Urban_Forestry_Data_08_27_25/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://www.cityofpeekskill.com/',
+    sourceMetadataUrl: 'https://services.arcgis.com/JkJtWZlydMmt6KMo/arcgis/rest/services/Peekskill_Eocene_Urban_Forestry_Data_08_27_25/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Peekskill',
+    long: 'City of Peekskill, New York',
+    country: 'USA',
+    // The feature layer has 3 Form_Types: "Tree" (real trees), "Planting Site"
+    // (empty plots), "Stump" (removed trees). Pining only wants living trees,
+    // so filter to Form_Type === 'Tree'. This drops ~460 empty plots / stumps.
+    // `row` here is the flat attributes dict (already unwrapped from GeoJSON).
+    filter: row => row.Form_Type === 'Tree',
+    crosswalk: {
+        // `ID` (a GUID) is null for ~17 rows; fall back to `FID` (always set).
+        ref: x => x.ID || x.FID,
+        // Reconstruct Latin binomial from genus + epithet (Species__2 +
+        // Species__3). Fall back to family-only if only family is set.
+        scientific: x => {
+            const genus = (x.Species__2 || '').trim();
+            const epith = (x.Species__3 || '').trim();
+            if (genus && epith) return `${genus} ${epith}`;
+            if (genus) return genus;
+            return (x.Species__1 || '').trim() || null;
+        },
+        common: 'Species_In',
+        family: 'Species__1',
+        genus: 'Species__2',
+        epithet: 'Species__3',
+        speciesCode: 'Species__4',
+        cultivar: x => {
+            const c = (x.CULTIVAR || '').trim();
+            return c || null;
+        },
+        dbh: x => x.Trees_DBH ? Number(x.Trees_DBH) * INCHES : null,
+        dbh2: x => x.DBH2 ? Number(x.DBH2) * INCHES : null,
+        dbh3: x => x.DBH3 ? Number(x.DBH3) * INCHES : null,
+        dbh4: x => x.DBH4 ? Number(x.DBH4) * INCHES : null,
+        dbh5: x => x.DBH5 ? Number(x.DBH5) * INCHES : null,
+        dbh6: x => x.DBH6 ? Number(x.DBH6) * INCHES : null,
+        stumpDiameter: x => x.Stump_Diam ? Number(x.Stump_Diam) * INCHES : null,
+        // HEIGHT is a string bin like "46-50" — parse midpoint in feet, convert to meters
+        height: x => {
+            const mid = parseRangeBin(x.HEIGHT);
+            return mid != null ? Math.round(mid / FEET * 100) / 100 : null;
+        },
+        heightBin: 'HEIGHT',
+        multiStem: 'MULTISTEM',
+        multiCount: 'Trees_MULT',
+        health: 'CONDITION',
+        crownCondition: 'CROWN',
+        siteType: 'SITETYPE',
+        siteWidth: 'SITE_WIDTH',
+        hardscaped: 'HARDSCAPED',
+        clearance: 'CLEARANCE',
+        overheadUtility: 'OHUTIL',
+        invasive: 'INVASIVE',
+        parkName: 'PARKNAME',
+        blockGroup: 'BLOCKGROUP',
+        // Address has leading zeros like "000000 DEPEW PARK" or "001134 MAIN ST"
+        // — strip leading zeros from the number portion for display.
+        address: x => {
+            const a = (x.Address || '').trim();
+            if (!a) return null;
+            return a.replace(/^0+(?=\d|\s)/, '').trim() || null;
+        },
+        // TRAQ risk assessment
+        occupancyRate: 'OCCUPANCYR',
+        impactLikelihood: 'IMPACTLIKE',
+        failureLikelihood: 'FAILURELIK',
+        combinedLikelihood: 'LIKELIHOOD',
+        consequences: 'CONSEQ',
+        traqRisk: 'TRAQRISK',
+        residualRisk: 'RESIDRISK',
+        treeWork: 'TREE_WORK_',
+        maintenancePriority: 'MAINT_PRIO',
+        inspectionPending: 'INSPECT',
+        comments: 'Comments',
+        notes: 'NOTES',
+        inventoryDate: x => x.INV_DATE ? new Date(x.INV_DATE).toISOString() : null,
+        createdAt: x => x.Date_Creat ? new Date(x.Date_Creat).toISOString() : null,
+        createdBy: 'Created_By',
+    },
+},
+{
+    // Town of Bedford, NY — 2018-vintage inventory of 4,448 trees. Schema
+    // combines Latin binomial + common name in a single `Species` field
+    // formatted as "Latin (common)" — e.g. "Betula lenta (birch, sweet)",
+    // "Acer platanoides (maple, Norway)". We parse both halves.
+    //
+    // Plus rich TRAQ fields: Risk_Rating, Consequence, Defects,
+    // Likelihood_of_Failure, Residual_Risk, Primary_Maintenance_Need, and
+    // Level_2_Assessment_Complete. Multi-stem yes/no flag.
+    //
+    // Static since 2019-02-04 — Bedford hasn't refreshed the inventory. Still
+    // useful for Pining because the species/DBH/location data is real.
+    id: 'bedford_ny',
+    download: 'https://services3.arcgis.com/CVgpFBT5IAstLcZC/arcgis/rest/services/BedfordTreeInventory/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://bedfordny.gov/',
+    sourceMetadataUrl: 'https://services3.arcgis.com/CVgpFBT5IAstLcZC/arcgis/rest/services/BedfordTreeInventory/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Bedford',
+    long: 'Town of Bedford, New York',
+    country: 'USA',
+    crosswalk: {
+        ref: 'Site_ID',
+        // "Latin_name (common)" — split on the first "(" and strip the ")".
+        scientific: x => {
+            const s = (x.Species || '').trim();
+            const m = s.match(/^(.+?)\s*\(/);
+            return m ? m[1].trim() : (s || null);
+        },
+        common: x => {
+            const s = (x.Species || '').trim();
+            const m = s.match(/\(([^)]+)\)\s*$/);
+            return m ? m[1].trim() : null;
+        },
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        multiStem: 'MultiStem',
+        health: 'Condition',
+        defects: 'Defects',
+        consequence: 'Consequence',
+        likelihoodOfFailure: 'Likelihood_of_Failure',
+        likelihoodFailureImpact: 'Likelihood_of_Failure_and_Impac',
+        likelihoodImpactingTarget: 'Likelihood_of_Impacting_Target',
+        riskRating: 'Risk_Rating',
+        residualRisk: 'Residual_Risk',
+        furtherInspection: 'Further_Inspection',
+        level2Complete: 'Level_2_Assessment_Complete',
+        maintenance: 'Primary_Maintenance_Need',
+        overheadUtility: 'Overhead_Utility',
+        address: x => {
+            const num = x.Address;
+            const street = (x.Street || '').trim();
+            const suffix = (x.Suffix || '').trim();
+            const parts = [num, street, suffix].filter(v => v != null && v !== '').join(' ').trim();
+            return parts || null;
+        },
+        onStreet: 'On_Street',
+        side: 'Side',
+        parcelId: 'ParcelID',
+        site: 'Site',
+        siteComments: 'Site_Comments',
+        lastChangedBy: 'Site_Last_Changed_By',
+        inventoryDate: x => x.Inventory_Date ? new Date(x.Inventory_Date).toISOString() : null,
+    },
+},
+{
+    // Village of Ossining, NY — 664 street trees inventoried by SavATree
+    // consulting in 2018 ("Ossining_Street_Tree_Inventory_FINAL"). Clean
+    // schema with separate Species (common) and Latin_Name (scientific)
+    // fields, plus DBH, Condition, Defects, Risk, Priority, Invasive flag.
+    // Static since 2018-03-07.
+    id: 'ossining',
+    download: 'https://services.arcgis.com/VgmyyKiMPvUPgldo/arcgis/rest/services/Ossining_Street_Tree_Inventory_FINAL/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://www.villageofossining.org/',
+    sourceMetadataUrl: 'https://services.arcgis.com/VgmyyKiMPvUPgldo/arcgis/rest/services/Ossining_Street_Tree_Inventory_FINAL/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Ossining',
+    long: 'Village of Ossining, New York',
+    country: 'USA',
+    crosswalk: {
+        ref: 'FID',
+        scientific: 'Latin_Name',
+        common: 'Species',
+        treeNumber: 'Tree',
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        health: 'Condition',
+        level: 'Level',
+        defects: 'Defects',
+        risk: 'Risk',
+        mitigation: 'Mitigation',
+        priority: 'Priority',
+        invasive: 'Invasive',
+        notes: 'Notes',
+        address: 'Address',
+    },
+},
+{
+    // Village of Dobbs Ferry, NY — 65 trees on a single parcel (High Street)
+    // surveyed by SavATree. Tiny but well-curated; worth shipping as a
+    // supplemental site dataset. Useful for the village tree board and
+    // anyone walking that parcel.
+    id: 'dobbs_ferry',
+    download: 'https://services.arcgis.com/VgmyyKiMPvUPgldo/arcgis/rest/services/Dobbs_Ferry_High_Street_Parcel_FINAL/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://dobbsferry.com/',
+    sourceMetadataUrl: 'https://services.arcgis.com/VgmyyKiMPvUPgldo/arcgis/rest/services/Dobbs_Ferry_High_Street_Parcel_FINAL/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Dobbs Ferry',
+    long: 'Village of Dobbs Ferry, New York (High Street parcel)',
+    country: 'USA',
+    crosswalk: {
+        ref: 'Tag',
+        scientific: 'Latin_Name',
+        common: 'Common_Name',
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        health: 'Cond_',
+        invasive: 'Invasive_Rating_',
+        structuralIssues: 'Structural_Issues',
+        recommendation: 'Recommendation',
+        priority: 'Priority',
+        notes: 'Notes',
+    },
+},
 {
     // Added 2026-04-14: City of Ithaca tree inventory ("City Managed Trees")
     // hosted on ArcGIS Online by cmorrissey_IthacaNY. ~13,258 trees managed

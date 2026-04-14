@@ -143,15 +143,19 @@ const DEFAULT_SOURCE_IDS = [
     'atlanta_champion',
     'austin',
     'austin_downtown',
+    'bedford_ny',
     'bellevue',
     'boston',
     'beaverton',
     'cambridge',
+    'dobbs_ferry',
     'irvine',
     'ithaca',
     'mountain_view',
     'oakland',
+    'ossining',
     'palo_alto',
+    'peekskill',
     'redmond',
     'san_diego',
     'san_jose',
@@ -525,6 +529,7 @@ async function refreshOneSource(source) {
         let droppedNoId = 0;
         for (const f of features) {
             const props = f.properties || {};
+            if (rowFilter && !rowFilter(props)) { droppedByFilter++; continue; }
             // GeoJSON: geometry.coordinates = [lon, lat]
             let latLon = { lat: null, lon: null };
             if (f.geometry && Array.isArray(f.geometry.coordinates) && f.geometry.coordinates.length >= 2) {
