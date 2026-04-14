@@ -20,28 +20,56 @@ module.exports = [
         },
     },
     {
-        // Verified 2026-04-13: stevage's URL still works (redirects to a CDN
-        // path). The London Street Trees dataset is a snapshot from 2018-02-14
-        // (per the filename); GLA hasn't published a refreshed bulk dataset
-        // since. No programmatic freshness lookup configured (data.london.gov.uk
-        // is CKAN-backed; Pining will surface this as "as of 2018-02").
+        // Updated 2026-04-13: switched from stevage's 2018 GLA snapshot
+        // (~715K trees) to the new "London Public Realm Trees" 2025 release
+        // (~1.14 MILLION trees, published 2025-12-01 by GLA + GiGL). Sources:
+        // 32 London boroughs, City of London, Transport for London, the Royal
+        // Parks, Olympic Park, Quintain. Includes future climate suitability
+        // ratings — perfect Pining themed-card material. License: UK Open
+        // Government Licence v3.0 (fully open, commercial use OK — separate
+        // from the CC BY-NC of the rest of stevage's data).
+        // Dataset page: https://data.london.gov.uk/dataset/london-public-realm-trees-2r45m/
         id: 'london',
-        download:
-            'https://data.london.gov.uk/download/local-authority-maintained-trees/c52e733d-bf7e-44b8-9c97-827cb2bc53be/london_street_trees_gla_20180214.csv',
-        info: 'https://data.london.gov.uk/dataset/local-authority-maintained-trees',
+        download: 'https://data.london.gov.uk/download/2r45m/e62a6a1f-390d-4193-ae32-3aabd9846f36/Borough_tree_list_2025Nov.csv',
+        info: 'https://data.london.gov.uk/dataset/london-public-realm-trees-2r45m/',
         format: 'csv',
         short: 'London',
-        long: 'Greater London Authority',
+        long: 'Greater London Authority — Public Realm Trees',
         country: 'UK',
         centre: [-0.1051, 51.5164],
+        license: 'OGL-UK-3.0', // overrides the inherited CC-BY-NC for this source
 
         crosswalk: {
-            ref: 'gla_id',
-            scientific: 'species_name',
+            ref: 'uniqueid',
+            scientific: 'taxon_species', // sometimes genus-only when species unknown
             common: 'common_name',
-            description: 'display_name',
+            genus: 'taxon_genus',
+            commonGenus: 'common_genus',
+            glaName: 'gla_name',
+            family: 'taxon_family',
             borough: 'borough',
-            //gla_id,borough,species_name,common_name,display_name,load_date,easting,northing,longitude,latitude
+            maintainer: 'maintainer',
+            location: 'location',
+            climateSuitability: 'climate_suitability', // Future climate suitability rating
+            climateSuitabilityConfidence: 'cs_confidence',
+            ageCategory: 'age_cat',
+            // Measurement fields are strings with units like "10 m", "32 cm".
+            // Parse the leading number; units are documented in the field name.
+            height: x => {
+                if (!x.height_m) return null;
+                const m = String(x.height_m).match(/(\d+(?:\.\d+)?)/);
+                return m ? Number(m[1]) : null;
+            },
+            crown: x => {
+                if (!x.canopy_m) return null;
+                const m = String(x.canopy_m).match(/(\d+(?:\.\d+)?)/);
+                return m ? Number(m[1]) : null;
+            },
+            dbh: x => {
+                if (!x.girth_dbh) return null;
+                const m = String(x.girth_dbh).match(/(\d+(?:\.\d+)?)/);
+                return m ? Number(m[1]) : null;
+            },
         },
     },
     {
@@ -192,6 +220,43 @@ module.exports = [
             scientific: 'BOTANICAL',
             site: 'SITE_NAME',
             planted: 'Planted',
+        },
+        primary: 'york',
+    },
+    {
+        // Added 2026-04-13: York Tree Preservation Orders — 3,521 legally
+        // protected trees under UK Tree Preservation Order legislation. TPOs
+        // are the UK's equivalent of US heritage tree designation: trees
+        // recognized as having significant amenity value, with legal
+        // restrictions on cutting, topping, lopping, or uprooting. Schema
+        // includes TYPE (Single tree / Group), SPECIES, BOTANICAL, OWNER.
+        // layer 10 in York's EnvPlan MapServer.
+        id: 'york_tpo',
+        country: 'UK',
+        short: 'York TPO',
+        long: 'York Tree Preservation Orders',
+        download: 'https://maps.york.gov.uk/arcgis/rest/services/Public/EnvPlan/MapServer/10/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+        info: 'https://www.york.gov.uk/TreePreservationOrders',
+        sourceMetadataUrl: 'https://maps.york.gov.uk/arcgis/rest/services/Public/EnvPlan/MapServer/10?f=json',
+        format: 'arcgis-rest',
+        crosswalk: {
+            ref: 'TREEID',
+            scientific: 'BOTANICAL',
+            common: 'SPECIES',
+            site: 'SITE_NAME',
+            owner: 'OWNER',
+            type: 'TYPE',
+            location: 'LOCATION',
+            // These measurement fields are present but typically empty in TPOs
+            // — the legal designation doesn't require recording them.
+            age: 'AGE',
+            height: 'HEIGHT',
+            spread: 'SPREAD',
+            trunk: 'TRUNK',
+            planted: 'Planted',
+            // Every record is a TPO-protected tree by definition
+            tpo: () => true,
+            heritage: () => true,
         },
         primary: 'york',
     },

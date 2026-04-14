@@ -134,6 +134,7 @@ const DEFAULT_SOURCE_IDS = [
     'pdx-park',
     'pdx_heritage',
     'washington-dc',
+    'washington_dc_all',
     'denver',
     'boulder',
     'pittsburgh',
@@ -141,11 +142,13 @@ const DEFAULT_SOURCE_IDS = [
     'austin_downtown',
     'mountain_view',
     'san_jose',
+    'san_jose_heritage',
     'london',
     'bristol',
     'edinburgh',
     'york',
     'york-private',
+    'york_tpo',
 ];
 
 const ARCGIS_PAGE_SIZE = 2000;
@@ -424,7 +427,11 @@ function makeCanonicalRecord(rawRow, source, latLon, sourceLastUpdated, ingested
         long: source.long,
         lat: latLon.lat,
         lon: latLon.lon,
-        license: 'CC-BY-NC-4.0', // inherited from stevage's repo license
+        // Default license inherited from stevage's repo (CC BY-NC 4.0).
+        // Individual sources can override via source.license — e.g. London 2025
+        // is OGL-UK-3.0 (open commercial use), which is meaningfully different
+        // from the rest of the dataset.
+        license: source.license || 'CC-BY-NC-4.0',
         attributionUrl: source.info || null,
         sourceLastUpdated,
         ingestedAt,
@@ -542,7 +549,7 @@ async function refreshOneSource(source) {
         format: source.format,
         download: source.download,
         info: source.info,
-        license: 'CC-BY-NC-4.0',
+        license: source.license || 'CC-BY-NC-4.0',
         sourceLastUpdated,
         ingestedAt,
         recordCount: valid.length,

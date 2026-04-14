@@ -284,10 +284,69 @@ module.exports = [
         family: 'FAM_NAME',
         planted: x => x.DATE_PLANT ? new Date(x.DATE_PLANT).toISOString() : null,
         updated: x => x.LAST_EDITED_DATE ? new Date(x.LAST_EDITED_DATE).toISOString() : null,
+        condDate: x => x.CONDITIODT ? new Date(x.CONDITIODT).toISOString() : null,
+        retired: x => x.RETIREDDT ? new Date(x.RETIREDDT).toISOString() : null,
         note: 'TREE_NOTES',
         health: 'CONDITION',
         owner: 'OWNERSHIP',
+        ward: 'WARD',
+        vicinity: 'VICINITY',
+        // Tree box dimensions
+        tboxLength: 'TBOX_L',
+        tboxWidth: 'TBOX_W',
+        tboxStatus: 'TBOX_STAT',
+        // Site context
+        wires: 'WIRES',
+        curb: 'CURB',
+        sidewalk: 'SIDEWALK',
+        disease: 'DISEASE',
+        pests: 'PESTS',
+        // Crown / canopy measurements
+        maxCrownHeight: 'MAX_CROWN_HEIGHT',
+        minCrownBase: 'MIN_CROWN_BASE',
+        crownArea: 'CROWN_AREA',
+        // Other
+        cicadaSurvey: 'CICADA_SURVEY',
+        elevation: 'ELEVATION',
+        gisId: 'GIS_ID',
     },
+},
+{
+    // Added 2026-04-13: DC's "DC Trees" layer (layer 11) — the COMPREHENSIVE
+    // DC tree dataset spanning street trees, park trees, and urban forest
+    // patches. ~1,985,917 records (9x larger than the UFA Street Trees layer 23
+    // we use as `washington-dc`). Schema is breadth-focused (23 fields) vs
+    // layer 23's deep 48-field per-tree records — both are valuable. This one
+    // gets us total geographic coverage; layer 23 gets us per-tree detail for
+    // street trees specifically.
+    id: 'washington_dc_all',
+    download: 'https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Urban_Tree_Canopy/MapServer/11/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://opendata.dc.gov/datasets/dc-trees',
+    sourceMetadataUrl: 'https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Urban_Tree_Canopy/MapServer/11?f=json',
+    format: 'arcgis-rest',
+    short: 'Washington DC (all)',
+    long: 'Washington DC — All Trees (street + parks + forest patches)',
+    country: 'USA',
+    centre: [-77, 38.92],
+    crosswalk: {
+        ref: 'TREE_ID',
+        scientific: 'SCIENTIFIC_NAME',
+        common: 'COMMON_NAME',
+        genus: 'GENUS_NAME',
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        height: x => x.HEIGHT ? Number(x.HEIGHT) / FEET : null,
+        status: 'STATUS',
+        owner: 'OWNERSHIP',
+        ward: 'WARD',
+        arborist: 'ARBORIST',
+        landCover: 'NLCD_LAND_COVER',
+        forestPatchId: 'FOREST_PATCH_ID',
+        forestPatchType: 'FOREST_PATCH_TYPE',
+        tract2010: 'TRACT_2010',
+        ancId: 'ANC_ID', // Advisory Neighborhood Commission ID
+        smdId: 'SMD_ID', // Single Member District ID
+    },
+    primary: 'washington-dc',
 },
 
 {
@@ -483,11 +542,38 @@ module.exports = [
     centre: [-80,40.436],
     short: 'Pittsburgh',
     crosswalk: {
-        common: 'common_name',
         ref: 'id',
+        common: 'common_name',
         scientific: 'scientific_name',
-        height: 'height',
+        // Stevage's old `dbh: 'dbh'` was silently broken — the actual field
+        // name in this GeoJSON is `diameter_base_height`. Verified against
+        // sample features 2026-04-13.
+        dbh: x => x.diameter_base_height ? Number(x.diameter_base_height) * INCHES : null,
+        height: x => x.height ? Number(x.height) / FEET : null,
+        width: 'width',
+        stems: 'stems',
         health: 'condition',
+        landUse: 'land_use',
+        overheadUtilities: 'overhead_utilities',
+        growthSpaceWidth: 'growth_space_width',
+        growthSpaceLength: 'growth_space_length',
+        growthSpaceType: 'growth_space_type',
+        address: x => x.address_number && x.street ? `${x.address_number} ${x.street}` : null,
+        // i-Tree benefit calculations — most are sparse but some trees have
+        // them. Pining can use these for "wow" cards: "this tree saves $X
+        // in stormwater" / "stores Y lbs of CO2".
+        co2StoredLbs: 'co2_benefits_totalco2_lbs',
+        co2SequesteredLbs: 'co2_benefits_sequestered_lbs',
+        co2BenefitsDollar: 'co2_benefits_dollar_value',
+        airQualityBenefitsDollar: 'air_quality_benfits_total_dollar_value',
+        airQualityBenefitsLbs: 'air_quality_benfits_total_lbs',
+        stormwaterBenefitsDollar: 'stormwater_benefits_dollar_value',
+        stormwaterRunoffElim: 'stormwater_benefits_runoff_elim',
+        energyElectricityDollar: 'energy_benefits_electricity_dollar_value',
+        energyGasDollar: 'energy_benefits_gas_dollar_value',
+        propertyValueDollar: 'property_value_benefits_dollarvalue',
+        leafSurfaceArea: 'property_value_benefits_leaf_surface_area',
+        overallBenefitsDollar: 'overall_benefits_dollar_value',
     }
 
 },
@@ -1379,6 +1465,42 @@ module.exports = [
         updated: x => x.LASTUPDATE ? new Date(x.LASTUPDATE).toISOString() : null,
         address: x => x.ADDRESSNUM && x.STREETNAME ? `${x.ADDRESSNUM} ${x.STREETNAME}` : null,
     }
+},
+{
+    // Added 2026-04-13: San Jose Heritage Trees — 110 trees formally
+    // designated by the city as historically significant. Each has an
+    // IMAGELINK pointing to a photo on gis.sanjoseca.gov, plus a HISTORY
+    // field with descriptive notes ("Large Specimen", historical significance,
+    // etc.). Perfect Pining hero candidates with free photos. layer 511 in
+    // San Jose's MapServer.
+    id: 'san_jose_heritage',
+    short: 'San Jose Heritage',
+    long: 'San Jose Heritage Trees Registry',
+    download: 'https://geo.sanjoseca.gov/server/rest/services/OPN/OPN_OpenDataService/MapServer/511/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://www.sanjoseca.gov/your-government/departments-offices/transportation/street-trees/heritage-trees',
+    sourceMetadataUrl: 'https://geo.sanjoseca.gov/server/rest/services/OPN/OPN_OpenDataService/MapServer/511?f=json',
+    format: 'arcgis-rest',
+    crosswalk: {
+        ref: 'FACILITYID',
+        scientific: 'SCIENTIFICNAME',
+        common: 'COMMONNAME',
+        dbh: x => x.DIAMETER ? Number(x.DIAMETER) * INCHES : null,
+        circumference: x => x.CIRCUMFERENCE ? Number(x.CIRCUMFERENCE) * INCHES : null,
+        address: 'ADDRESS',
+        location: 'TREELOCATION',
+        treesOnSite: 'NUMBEROFTREESONSITE',
+        history: 'HISTORY',
+        imageUrl: 'IMAGELINK',
+        notes: 'NOTES',
+        councilDistrict: 'COUNCILDISTRICT',
+        fileNumber: 'FILENUMBER',
+        status: 'TREESTATUS',
+        photoDate: x => x.PHOTODATE ? new Date(x.PHOTODATE).toISOString() : null,
+        created: x => x.CREATIONDATE ? new Date(x.CREATIONDATE).toISOString() : null,
+        updated: x => x.LASTUPDATE ? new Date(x.LASTUPDATE).toISOString() : null,
+        heritage: () => true, // every record is a heritage tree by construction
+    },
+    primary: 'san_jose',
 },
 // maybe https://opendata.arcgis.com/datasets/a31898f9fff4417ab6f784c9b4fe5f43_27.csv
 
