@@ -140,6 +140,7 @@ const DEFAULT_SOURCE_IDS = [
     'pittsburgh',
     'austin',
     'austin_downtown',
+    'boston',
     'mountain_view',
     'san_jose',
     'san_jose_heritage',
@@ -369,12 +370,13 @@ function extractCsvLatLon(row) {
         ['Y', 'X'],
         ['y', 'x'],
         ['y_lat', 'x_long'],         // Denver's column names
+        ['y_latitude', 'x_longitude'], // Boston BPRD's column names
     ];
     // WKT first — checked before generic Y/X columns because in many Socrata
     // datasets Y/X are state plane projection coordinates (feet/meters in a
     // local CRS, not lat/lon). The WKT in `the_geom` / `Geometry` / `Location`
-    // is always WGS84.
-    const wktSources = ['the_geom', 'geom', 'GEOMETRY', 'geometry', 'Geometry', 'Location', 'location'];
+    // / `shape_wkt` is always WGS84.
+    const wktSources = ['the_geom', 'geom', 'GEOMETRY', 'geometry', 'Geometry', 'Location', 'location', 'shape_wkt'];
     for (const key of wktSources) {
         const v = row[key];
         if (typeof v !== 'string') continue;

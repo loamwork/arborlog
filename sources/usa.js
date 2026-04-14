@@ -492,6 +492,52 @@ module.exports = [
     },
 },
 {
+    // Added 2026-04-13: Boston Parks & Recreation Department Trees ("BPRD
+    // Trees") on data.boston.gov (CKAN). 52,778 records as of today, combines
+    // BOTH park and street trees in one inventory. License is Open Data Commons
+    // PDDL (public domain) — even more permissive than CC-BY. Data was last
+    // edited 2026-04-13 (yesterday). Schema is lowercase + underscore.
+    //
+    // The CKAN bulk CSV download returned 502/403 (data.boston.gov has rate
+    // limits or anti-bot on direct downloads from non-browser clients). The
+    // underlying ArcGIS Online FeatureServer works fine and has the same
+    // schema, so we use that with paginated GeoJSON queries.
+    id: 'boston',
+    download: 'https://services.arcgis.com/sFnw0xNflSi8J0uh/arcgis/rest/services/BPRD_Trees/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://data.boston.gov/dataset/bprd-trees',
+    sourceMetadataUrl: 'https://services.arcgis.com/sFnw0xNflSi8J0uh/arcgis/rest/services/BPRD_Trees/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Boston',
+    long: 'Boston Parks & Recreation Department',
+    country: 'USA',
+    license: 'PDDL-1.0', // public domain — overrides default CC-BY-NC
+    crosswalk: {
+        ref: 'id',
+        scientific: 'spp_bot',
+        common: 'spp_com',
+        // dbh is a STRING with decimals like "27.00000000"
+        dbh: x => x.dbh ? Number(x.dbh) * INCHES : null,
+        dbhRange: 'dbh_range', // e.g. "24-30in", "3-6in"
+        // numberof_st = number of stems
+        stems: x => x.numberof_st ? Number(x.numberof_st) : null,
+        // date_plant can be "--" (sentinel for unknown) or text like "Spring 2021"
+        planted: x => (x.date_plant && x.date_plant !== '--') ? x.date_plant : null,
+        neighborhood: 'neighborhood',
+        park: 'park',
+        // Combine address + street + suffix
+        address: x => {
+            const num = x.address;
+            const street = x.street;
+            const suffix = x.suffix;
+            if (!num && !street) return null;
+            const parts = [num, suffix, street].filter(p => p && String(p).trim());
+            return parts.join(' ').trim() || null;
+        },
+        siteCode: 'site',
+        osId: 'os_id', // open space ID (for park trees)
+    },
+},
+{
     id: 'cambridge',
     country: 'USA',
     download: 'https://data.cambridgema.gov/api/views/q83f-7quz/rows.csv?accessType=DOWNLOAD',

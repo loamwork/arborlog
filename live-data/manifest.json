@@ -380,7 +380,23 @@
       "droppedNoGeo": 0,
       "durationSec": 3,
       "lastRunStatus": "ok"
+    },
+    "boston": {
+      "sourceId": "boston",
+      "short": "Boston",
+      "long": "Boston Parks & Recreation Department",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services.arcgis.com/sFnw0xNflSi8J0uh/arcgis/rest/services/BPRD_Trees/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://data.boston.gov/dataset/bprd-trees",
+      "license": "PDDL-1.0",
+      "sourceLastUpdated": "2026-04-13T15:28:48.836Z",
+      "ingestedAt": "2026-04-14T03:42:37.000Z",
+      "recordCount": 52778,
+      "droppedNoGeo": 0,
+      "durationSec": 15,
+      "lastRunStatus": "ok"
     }
   },
-  "lastRefreshedAt": "2026-04-14T03:01:49.959Z"
+  "lastRefreshedAt": "2026-04-14T03:42:51.215Z"
 }
