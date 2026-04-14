@@ -537,6 +537,178 @@ module.exports = [
     },
 },
 {
+    // Added 2026-04-14: City of Oakland, CA tree inventory. Stevage's upstream
+    // had Oakland commented out as broken. Hosted by ParkTree / Davey Resource
+    // Group as the city's consultant — the services.arcgis.com org is
+    // `gmatassa_ParkTree`, item was refreshed 2025-09-15. 70,420 trees, much
+    // richer than the stale 2013 Socrata `TreesAlongSidewalks` set on
+    // data.oaklandca.gov. Species is stored under four fields: ___family,
+    // ___genus, ___botanical (scientific binomial), ___common.
+    id: 'oakland',
+    download: 'https://services.arcgis.com/9tC74aDHuml0x5Yz/arcgis/rest/services/Oakland_Public_Tree_Inventory_/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://www.oaklandca.gov/topics/tree-services',
+    sourceMetadataUrl: 'https://services.arcgis.com/9tC74aDHuml0x5Yz/arcgis/rest/services/Oakland_Public_Tree_Inventory_/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Oakland',
+    long: 'City of Oakland, California',
+    country: 'USA',
+    crosswalk: {
+        ref: 'Site_ID',
+        scientific: 'Species___botanical',
+        common: 'Species___common',
+        genus: 'Species___genus',
+        family: 'Species___family',
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        health: 'Condition',
+        address: x => {
+            const num = x.Address || '';
+            const street = x.Street || '';
+            const side = x.Side || '';
+            const combined = [num, street].filter(Boolean).join(' ').trim();
+            return combined || null;
+        },
+        onStreet: 'On_Street',
+        site: 'Site',
+        spaceSize: 'Space_Size',
+        stems: 'Stems',
+        subArea: 'SubArea',
+        wires: 'Overhead_Utilities',
+        publicTree: 'Public_Tree',
+        maintenance: 'Maintenance_Need',
+        defect: 'Primary_Defect',
+        policeBeat: 'Police_Beat_ID',
+        valuation: 'Valuation_Total',
+        valuationType: 'Valuation_Type',
+    },
+},
+{
+    // Added 2026-04-14: City of Beaverton, OR tree inventory (Portland metro).
+    // Dashboard/Tree_Inventory MapServer layer 0 on gisweb.beavertonoregon.gov,
+    // ~30,828 records actively maintained (LASTUPDATE max 2026-04-01). The
+    // INVENTORYTYPE field tags records as Street / Street Tree / Landscape /
+    // Significant / Historic A / Historic P — Pining can use this to filter.
+    //
+    // IMPORTANT: this dataset has NO scientific names. TREEDESCRIP is a common
+    // name + cultivar combo in ALL CAPS (e.g. "BOWHALL RED MAPLE"), and
+    // TREEGROUP is a coarse common category (e.g. "MAPLE", not the genus
+    // "Acer"). We store both; downstream consumers can try a common-name → Latin
+    // lookup if they want scientific.
+    //
+    // License: no explicit open-data grant. The MapServer is publicly readable
+    // (used by the city's own Tree Inventory web app + Dashboard). Treat as
+    // attribution-to-City-of-Beaverton, request explicit terms if needed.
+    id: 'beaverton',
+    download: 'https://gisweb.beavertonoregon.gov/server/rest/services/Dashboard/Tree_Inventory/MapServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://www.beavertonoregon.gov/1054/Urban-Forestry',
+    sourceMetadataUrl: 'https://gisweb.beavertonoregon.gov/server/rest/services/Dashboard/Tree_Inventory/MapServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Beaverton',
+    long: 'City of Beaverton, Oregon',
+    country: 'USA',
+    crosswalk: {
+        ref: 'FACILITYID',
+        // TREEDESCRIP is a common-name + cultivar string in ALL CAPS; only ~44%
+        // of records have it. TREEGROUP is the coarser grouping
+        // (MAPLE/PEAR/ASH/CHERRY/…) and has 94% coverage, so we fall back to it
+        // when TREEDESCRIP is empty. Neither is a real scientific binomial, so
+        // `scientific` is left null.
+        common: x => {
+            const desc = (x.TREEDESCRIP || '').trim();
+            if (desc) return desc;
+            const grp = (x.TREEGROUP || '').trim();
+            return grp || null;
+        },
+        treeGroup: 'TREEGROUP',
+        dbh: x => x.DIAMETER ? Number(x.DIAMETER) * INCHES : null,
+        height: x => x.HEIGHT ? Number(x.HEIGHT) / FEET : null,
+        yearPlanted: 'YEARPLANTED',
+        inventoryType: 'INVENTORYTYPE', // Street / Landscape / Significant / Historic A / Historic P
+        planterSize: 'PLANTERSIZE',
+        soilType: 'SOILTYPE',
+        grateType: 'GrateType',
+        // CWCONDITION / STATUS / SOURCE are codedValueDomain integers in the
+        // MapServer; the GeoJSON output drops the domain so we get raw codes.
+        // Decode them inline using the mappings from the layer's f=json metadata.
+        health: x => ({
+            0: 'Unknown', 1: 'Very Good', 2: 'Good',
+            3: 'Fair', 4: 'Poor', 5: 'Very Poor',
+        })[x.CWCONDITION] || null,
+        status: x => ({
+            1: 'Planned', 2: 'Existing', 3: 'Abandoned',
+            4: 'Removed', 5: 'Proposed', 99: 'Unknown',
+        })[x.STATUS] || null,
+        source: x => ({
+            1: 'Survey', 2: 'Field Check', 3: 'Asbuilt', 4: 'Plan',
+            5: 'Ortho', 6: 'Unknown', 7: 'Plat', 8: 'COB Document',
+            9: 'OPS Redline', 10: 'ENG Redline', 11: 'Scan', 12: 'GPS',
+            13: 'Outside', 14: 'Springbrook',
+        })[x.SOURCE] || null,
+        owner: 'OWNEDBY',
+        maintenance: 'MAINTBY',
+        notes: 'NOTES',
+        sigTreeNum: 'SIGTREENUM', // present on significant / historic records
+        updated: x => x.LASTUPDATE ? new Date(x.LASTUPDATE).toISOString() : null,
+        created: x => x.DATE_CREATED ? new Date(x.DATE_CREATED).toISOString() : null,
+        createdBy: 'CREATED_BY',
+        editedBy: 'LASTEDITOR',
+    },
+},
+{
+    // Added 2026-04-14: City of Santa Fe, NM tree inventory. "The City
+    // Different" ArcGIS Online org (p0Gk2nDbPs7KEqSZ), CurrentTreePlotterData
+    // feature service (5,944 trees, 60 fields). This is a trimmed export from
+    // the city's PlanIT Geo TreePlotter instance (public viewer at
+    // pg-cloud.com/NewMexico). Field names are truncated to 10 characters
+    // because the export went through a shapefile roundtrip — we map e.g.
+    // HeightEsti / LastModifi / GrowingSpa / NumberofSt explicitly.
+    id: 'santa_fe',
+    download: 'https://services7.arcgis.com/p0Gk2nDbPs7KEqSZ/arcgis/rest/services/CurrentTreePlotterData/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson',
+    info: 'https://treesmart-thecitydifferent.hub.arcgis.com',
+    sourceMetadataUrl: 'https://services7.arcgis.com/p0Gk2nDbPs7KEqSZ/arcgis/rest/services/CurrentTreePlotterData/FeatureServer/0?f=json',
+    format: 'arcgis-rest',
+    short: 'Santa Fe',
+    long: 'City of Santa Fe, New Mexico',
+    country: 'USA',
+    crosswalk: {
+        ref: 'TreeId',
+        scientific: 'LatinName',
+        common: 'CommonName',
+        genus: 'Genus',
+        family: 'Family',
+        cultivar: 'Cultivar',
+        dbh: x => x.DBH ? Number(x.DBH) * INCHES : null,
+        height: x => x.HeightEsti ? Number(x.HeightEsti) / FEET : null,
+        health: 'Condition',
+        status: 'Status',
+        address: 'Address',
+        parkName: 'ParkName',
+        landUse: 'LandUse',
+        crownClass: 'CrownClass',
+        crownLight: 'CrownLight',
+        growingSpace: 'GrowingSpa',
+        plantingSize: 'PlantingSi',
+        stems: 'NumberofSt',
+        riskRating: 'RiskRating',
+        maintenance: 'PrimaryMai',
+        wires: 'Wires',
+        clearance: 'ClearanceC',
+        defect: 'CriticalRo',
+        protection: 'TreeProtec',
+        cityManaged: 'CityManage',
+        photos: 'Photos',
+        organization: 'Organizati',
+        treeComments: 'TreeCommen',
+        observations: 'Observatio',
+        inspection: 'Inspection',
+        lastInspected: x => x.LastInspec ? new Date(x.LastInspec).toISOString() : null,
+        nextInspected: x => x.NextInspec ? new Date(x.NextInspec).toISOString() : null,
+        updated: x => x.LastModifi ? new Date(x.LastModifi).toISOString() : null,
+        created: x => x.DateCreate ? new Date(x.DateCreate).toISOString() : null,
+        collectedAt: x => x.TimeCollec ? new Date(x.TimeCollec).toISOString() : null,
+        collector: 'User_',
+    },
+},
+{
     // Verified 2026-04-13: stevage's URL still works but the field names in
     // their crosswalk were all wrong-cased (UPPERCASE) — the actual CSV columns
     // are lowercase: site_id / species_botanic / species_common / diameter /

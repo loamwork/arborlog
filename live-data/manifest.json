@@ -524,7 +524,55 @@
       "droppedNoGeo": 0,
       "durationSec": 6,
       "lastRunStatus": "ok"
+    },
+    "oakland": {
+      "sourceId": "oakland",
+      "short": "Oakland",
+      "long": "City of Oakland, California",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services.arcgis.com/9tC74aDHuml0x5Yz/arcgis/rest/services/Oakland_Public_Tree_Inventory_/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://www.oaklandca.gov/topics/tree-services",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2023-08-08T16:44:00.713Z",
+      "ingestedAt": "2026-04-14T04:51:40.560Z",
+      "recordCount": 70420,
+      "droppedNoGeo": 0,
+      "durationSec": 38,
+      "lastRunStatus": "ok"
+    },
+    "beaverton": {
+      "sourceId": "beaverton",
+      "short": "Beaverton",
+      "long": "City of Beaverton, Oregon",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://gisweb.beavertonoregon.gov/server/rest/services/Dashboard/Tree_Inventory/MapServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://www.beavertonoregon.gov/1054/Urban-Forestry",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": null,
+      "ingestedAt": "2026-04-14T04:56:14.522Z",
+      "recordCount": 30828,
+      "droppedNoGeo": 0,
+      "durationSec": 26,
+      "lastRunStatus": "ok"
+    },
+    "santa_fe": {
+      "sourceId": "santa_fe",
+      "short": "Santa Fe",
+      "long": "City of Santa Fe, New Mexico",
+      "country": "USA",
+      "format": "arcgis-rest",
+      "download": "https://services7.arcgis.com/p0Gk2nDbPs7KEqSZ/arcgis/rest/services/CurrentTreePlotterData/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "info": "https://treesmart-thecitydifferent.hub.arcgis.com",
+      "license": "CC-BY-NC-4.0",
+      "sourceLastUpdated": "2024-01-24T18:35:28.104Z",
+      "ingestedAt": "2026-04-14T04:52:57.101Z",
+      "recordCount": 5944,
+      "droppedNoGeo": 0,
+      "durationSec": 3,
+      "lastRunStatus": "ok"
     }
   },
-  "lastRefreshedAt": "2026-04-14T04:37:22.187Z"
+  "lastRefreshedAt": "2026-04-14T04:56:40.228Z"
 }
