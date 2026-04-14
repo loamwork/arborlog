@@ -583,10 +583,10 @@
       "info": "https://san-diego-trees-for-communities-arboraccess.hub.arcgis.com",
       "license": "CC-BY-NC-4.0",
       "sourceLastUpdated": "2026-04-03T14:38:48.562Z",
-      "ingestedAt": "2026-04-14T13:15:23.528Z",
-      "recordCount": 258980,
-      "droppedNoGeo": 0,
-      "durationSec": 116,
+      "ingestedAt": "2026-04-14T13:40:56.610Z",
+      "recordCount": 258979,
+      "droppedNoGeo": 1,
+      "durationSec": 117,
       "lastRunStatus": "ok"
     },
     "palo_alto": {
@@ -638,5 +638,5 @@
       "lastRunStatus": "ok"
     }
   },
-  "lastRefreshedAt": "2026-04-14T13:17:19.182Z"
+  "lastRefreshedAt": "2026-04-14T13:42:53.191Z"
 }

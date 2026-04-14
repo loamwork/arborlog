@@ -558,8 +558,16 @@ async function refreshOneSource(source) {
         throw new Error(`Unsupported format '${source.format}' for source ${source.id}`);
     }
 
-    // Drop records without valid coords
-    const valid = records.filter(r => Number.isFinite(r.lat) && Number.isFinite(r.lon) && r.lat !== 0 && r.lon !== 0);
+    // Drop records without valid coords. The "Null Island" check catches GPS
+    // sentinels that slipped through an exact `!== 0` test — e.g. one San
+    // Diego record had lat≈8e-13, lon≈3e-12. We require BOTH lat and lon to
+    // be near zero to drop, so legitimate Greenwich-meridian trees (lat≈51,
+    // lon≈0) and equatorial trees (lat≈0, lon≠0) stay.
+    const NULL_ISLAND_RADIUS = 0.01; // degrees — ~1.1 km at equator
+    const valid = records.filter(r =>
+        Number.isFinite(r.lat) && Number.isFinite(r.lon) &&
+        !(Math.abs(r.lat) < NULL_ISLAND_RADIUS && Math.abs(r.lon) < NULL_ISLAND_RADIUS)
+    );
     const droppedNoGeo = records.length - valid.length;
 
     // Write output as chunked JSON array — one record at a time to avoid
